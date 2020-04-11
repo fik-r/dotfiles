@@ -1,0 +1,27 @@
+#!/bin/bash
+
+FOREGROUND=$(xrdb -query | grep 'cursorColor:'| awk 'NR==1{print $NF}')
+ROFI_OPTIONS=(-theme $HOME/.config/rofi/rofi_full -m -1 -fullscreen 0 -theme-str "*{accent: $FOREGROUND;}")
+
+another=$(echo "LOCK
+SUSPEND
+LOGOUT
+REBOOT
+SHUTDOWN" | awk '{print $(NF-1)}' | rofi "${ROFI_OPTIONS[@]}" -dmenu -i -p "SYSTEM: ")
+
+if [ "$another" == "LOCK" ] ; then
+	betterlockscreen --lock;
+elif [ "$another" == "SUSPEND" ] ; then
+	betterlockscreen -s;
+elif [ "$another" == "LOGOUT" ] ; then
+	[ $(echo -e "Yes\nNo" | rofi "${ROFI_OPTIONS[@]}" -theme-str "*{accent: #e85a0c;}" -dmenu -i -p "Are you sure you want to proceed?") == Yes ] && i3exit logout
+	
+elif [ "$another" == "REBOOT" ] ; then
+	[ $(echo -e "Yes\nNo" | rofi "${ROFI_OPTIONS[@]}" -theme-str "*{accent: #e85a0c;}" -dmenu -i -p "Are you sure you want to proceed?") == Yes ] && i3exit reboot
+	
+elif [ "$another" == "SHUTDOWN" ] ; then
+	[ $(echo -e "Yes\nNo" | rofi "${ROFI_OPTIONS[@]}" -theme-str "*{accent: #e85a0c;}" -dmenu -i -p "Are you sure you want to proceed?") == Yes ] && i3exit shutdown
+
+else
+    echo $another
+fi
